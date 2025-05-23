@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script>
+      const supabaseUrl = 'https://grfvuiafkkbgoqnutnpn.supabase.co';
+      const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdyZnZ1aWFma2tiZ29xbnV0bnBuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDgwMTgyMTEsImV4cCI6MjA2MzU5NDIxMX0.mffzlRl56D2EShPSHyaaNnvd4C1DYpORhLkPlRO3URs';
+
+      window.supabase = supabase.createClient(supabaseUrl, supabaseKey);
+    </script>
+
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Profile Card</title>
+    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <style>
+        .form-group {
+            position: relative;
+            margin-bottom: 20px;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 10px 35px;
+            border: none;
+            border-bottom: 2px solid #ddd;
+            outline: none;
+            transition: border-color 0.3s ease;
+            font-size: 14px;
+        }
+        .form-group input::placeholder {
+            color: #aaa;
+        }
+        .form-group input:focus {
+            border-bottom-color: #4a90e2;
+        }
+        .form-group i {
+            position: absolute;
+            left: 10px;
+            top: 12px;
+            color: #666;
+        }
+        #formTitle {
+            font-size: 42px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        .welcome-card {
+            display: none;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            text-align: center;
+            margin-top: 20px;
+            position: relative;
+            z-index: 1000;
+        }
+        .welcome-card h2 {
+            color: #4a90e2;
+            margin-bottom: 10px;
+        }
+        .welcome-card p {
+            color: #666;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+        .welcome-card .user-email {
+            color: #888;
+            font-size: 12px;
+            font-style: italic;
+        }
+        .half-bg {
+            z-index: 1;
+        }
+        
+        @keyframes floatCircle {
+            0% {
+                transform: translateY(0) rotate(0deg);
+                opacity: 0.7;
+            }
+            50% {
+                transform: translateY(-20px) rotate(180deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(0) rotate(360deg);
+                opacity: 0.7;
+            }
+        }
+
+        .circle {
+            animation: floatCircle 4s infinite ease-in-out;
+        }
+
+        .circle1 { animation-delay: 0s; }
+        .circle2 { animation-delay: 0.4s; }
+        .circle3 { animation-delay: 0.8s; }
+        .circle4 { animation-delay: 1.2s; }
+        .circle5 { animation-delay: 1.6s; }
+        .circle6 { animation-delay: 2.0s; }
+        .circle7 { animation-delay: 2.4s; }
+        .circle8 { animation-delay: 2.8s; }
+        .circle9 { animation-delay: 3.2s; }
+        .circle10 { animation-delay: 3.6s; }
+        .circle11 { animation-delay: 4.0s; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="card" id="loginCard">
+        <div class="login-header">
+            <h2 id="formTitle">Login</h2>
+            <p id="formDescription">Please enter your credentials</p>
+        </div>
+        <form class="login-form" id="loginForm">
+            <div class="form-group">
+                <i class="fas fa-user"></i>
+                <input type="text" id="username" name="username" placeholder="Enter your username" required />
+            </div>
+            <div class="form-group" id="emailGroup" style="display: none;">
+                <i class="fas fa-envelope"></i>
+                <input type="email" id="email" name="email" placeholder="Enter your email" required />
+            </div>
+            <div class="form-group">
+                <i class="fas fa-key"></i>
+                <input type="password" id="password" name="password" placeholder="Enter your password" required />
+                <div id="passwordConditions" style="display: none;">
+                    <small id="upperCaseCondition" style="color: red;">✗ Must start with uppercase letter</small><br />
+                    <small id="numberCondition" style="color: red;">✗ Must contain numbers</small><br />
+                    <small id="specialCharCondition" style="color: red;">✗ Must contain special characters</small><br />
+                    <small id="lengthCondition" style="color: red;">✗ Must be at least 8 characters long</small>
+                </div>
+            </div>
+            <div class="form-group" id="confirmPasswordGroup" style="display: none;">
+                <i class="fas fa-key"></i>
+                <input
+                    type="password"
+                    id="confirmPassword"
+                    name="confirmPassword"
+                    placeholder="Confirm your password"
+                    required
+                />
+            </div>
+            <div class="form-options">
+                <div class="remember-me">
+                    <input type="checkbox" id="remember" name="remember" />
+                    <label for="remember">Remember me</label>
+                </div>
+                <a href="#" class="forgot-password">Forgot password?</a>
+            </div>
+            <button type="submit" class="login-btn" id="submitBtn">Login</button>
+            <div class="signup-link">
+                <p>
+                    Don't have an account?
+                    <a href="#" id="toggleForm">Sign up</a>
+                </p>
+            </div>
+        </form>
+    </div>
+
+    <div class="welcome-card" id="welcomeCard">
+        <h2>Welcome <span id="welcomeUsername"></span>!</h2>
+    </div>
+
+    <div class="half-bg">
+        <span class="circle circle1"></span>
+        <span class="circle circle2"></span>
+        <span class="circle circle3"></span>
+        <span class="circle circle4"></span>
+        <span class="circle circle5"></span>
+        <span class="circle circle6"></span>
+        <span class="circle circle7"></span>
+        <span class="circle circle8"></span>
+        <span class="circle circle9"></span>
+        <span class="circle circle10"></span>
+        <span class="circle circle11"></span>
+    </div>
+</div>
+
+<script>
+    function validatePassword(password) {
+        const hasUpperCase = /^[A-Z]/.test(password);
+        const hasNumbers = /[0-9]/.test(password);
+        const hasSpecialChars = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+        const hasMinLength = password.length >= 8;
+
+        document.getElementById('upperCaseCondition').style.color = hasUpperCase ? 'green' : 'red';
+        document.getElementById('upperCaseCondition').textContent = hasUpperCase
+            ? '✓ Must start with uppercase letter'
+            : '✗ Must start with uppercase letter';
+
+        document.getElementById('numberCondition').style.color = hasNumbers ? 'green' : 'red';
+        document.getElementById('numberCondition').textContent = hasNumbers
+            ? '✓ Must contain numbers'
+            : '✗ Must contain numbers';
+
+        document.getElementById('specialCharCondition').style.color = hasSpecialChars ? 'green' : 'red';
+        document.getElementById('specialCharCondition').textContent = hasSpecialChars
+            ? '✓ Must contain special characters'
+            : '✗ Must contain special characters';
+
+        document.getElementById('lengthCondition').style.color = hasMinLength ? 'green' : 'red';
+        document.getElementById('lengthCondition').textContent = hasMinLength
+            ? '✓ Must be at least 8 characters long'
+            : '✗ Must be at least 8 characters long';
+
+        return hasUpperCase && hasNumbers && hasSpecialChars && hasMinLength;
+    }
+
+    document.getElementById('loginForm').addEventListener('submit', async function(event) {
+        event.preventDefault();
+
+        const password = document.getElementById('password').value;
+        const username = document.getElementById('username').value;
+        const email = document.getElementById('email').value;
+
+        if (document.getElementById('formTitle').textContent === 'Login') {
+            try {
+                const { data, error } = await supabase.auth.signInWithPassword({
+                    email: username,
+                    password: password,
+                });
+                if (error) throw error;
+
+                const { data: userData, error: updateError } = await supabase
+                    .from('users')
+                    .update({ last_login: new Date().toISOString() })
+                    .eq('auth_id', data.user.id);
+
+                if (updateError) throw updateError;
+
+                document.getElementById('loginCard').style.display = 'none';
+                document.getElementById('welcomeUsername').textContent = username;
+                document.getElementById('welcomeCard').style.display = 'block';
+
+            } catch (error) {
+                alert('Error logging in: ' + error.message);
+            }
+        } else {
+            if (!validatePassword(password)) {
+                alert('Password does not meet the conditions!');
+                return;
+            }
+
+            if (password !== document.getElementById('confirmPassword').value) {
+                alert('Passwords do not match!');
+                return;
+            }
+
+            try {
+                const { data, error } = await supabase.auth.signUp({
+                    email: email,
+                    password: password,
+                    options: {
+                        data: {
+                            username: username,
+                        },
+                    },
+                });
+
+                if (error) throw error;
+
+                const { data: userData, error: insertError } = await supabase
+                    .from('users')
+                    .upsert([
+                        {
+                            auth_id: data.user.id,
+                            email: email,
+                            username: username,
+                            created_at: new Date().toISOString(),
+                        },
+                    ]);
+
+                if (insertError) throw insertError;
+
+                alert('Registration successful! Please check your email for verification.');
+            } catch (error) {
+                alert('Error registering: ' + error.message);
+            }
+        }
+    });
+
+    document.getElementById('password').addEventListener('input', function () {
+        if (document.getElementById('formTitle').textContent === 'Register') {
+            validatePassword(this.value);
+        }
+    });
+
+    document.getElementById('toggleForm').addEventListener('click', function (e) {
+        e.preventDefault();
+        const formTitle = document.getElementById('formTitle');
+        const formDescription = document.getElementById('formDescription');
+        const submitBtn = document.getElementById('submitBtn');
+        const toggleLink = document.getElementById('toggleForm');
+        const emailGroup = document.getElementById('emailGroup');
+        const confirmPasswordGroup = document.getElementById('confirmPasswordGroup');
+        const passwordConditions = document.getElementById('passwordConditions');
+
+        if (formTitle.textContent === 'Login') {
+            formTitle.textContent = 'Register';
+            formDescription.textContent = 'Create your account';
+            submitBtn.textContent = 'Register';
+            toggleLink.textContent = 'Login';
+            toggleLink.previousSibling.textContent = 'Already have an account? ';
+            emailGroup.style.display = 'block';
+            confirmPasswordGroup.style.display = 'block';
+            passwordConditions.style.display = 'block';
+        } else {
+            formTitle.textContent = 'Login';
+            formDescription.textContent = 'Please enter your credentials';
+            submitBtn.textContent = 'Login';
+            toggleLink.textContent = 'Sign up';
+            toggleLink.previousSibling.textContent = "Don't have an account? ";
+            emailGroup.style.display = 'none';
+            confirmPasswordGroup.style.display = 'none';
+            passwordConditions.style.display = 'none';
+        }
+    });
+</script>
+</body>
+</html>
