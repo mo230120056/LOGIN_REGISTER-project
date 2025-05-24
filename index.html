@@ -40,6 +40,12 @@
             top: 12px;
             color: #666;
         }
+        .error-message {
+            color: red;
+            font-size: 12px;
+            margin-top: 5px;
+            display: none;
+        }
         #formTitle {
             font-size: 42px;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -116,16 +122,18 @@
         </div>
         <form class="login-form" id="loginForm">
             <div class="form-group">
-                <i class="fas fa-user"></i>
-                <input type="text" id="username" name="username" placeholder="Enter your username" required />
+                <i class="fas fa-envelope"></i>
+                <input type="email" id="username" name="username" placeholder="Enter your email" required />
+                <div class="error-message" id="emailError"></div>
             </div>
             <div class="form-group" id="emailGroup" style="display: none;">
                 <i class="fas fa-envelope"></i>
-                <input type="email" id="email" name="email" placeholder="Enter your email" required />
+                <input type="email" id="email" name="email" placeholder="Enter your email" />
             </div>
             <div class="form-group">
                 <i class="fas fa-key"></i>
                 <input type="password" id="password" name="password" placeholder="Enter your password" required />
+                <div class="error-message" id="passwordError"></div>
                 <div id="passwordConditions" style="display: none;">
                     <small id="upperCaseCondition" style="color: red;">✗ Must start with uppercase letter</small><br />
                     <small id="numberCondition" style="color: red;">✗ Must contain numbers</small><br />
@@ -140,7 +148,6 @@
                     id="confirmPassword"
                     name="confirmPassword"
                     placeholder="Confirm your password"
-                    required
                 />
             </div>
             <div class="form-options">
@@ -180,11 +187,34 @@
 </div>
 
 <script>
+    function validateEmail(email) {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        const emailError = document.getElementById('emailError');
+        if (!emailRegex.test(email)) {
+            emailError.textContent = 'Please enter a valid email address';
+            emailError.style.display = 'block';
+            return false;
+        }
+        emailError.style.display = 'none';
+        return true;
+    }
+
     function validatePassword(password) {
         const hasUpperCase = /^[A-Z]/.test(password);
         const hasNumbers = /[0-9]/.test(password);
         const hasSpecialChars = /[!@#$%^&*(),.?":{}|<>]/.test(password);
         const hasMinLength = password.length >= 8;
+        const passwordError = document.getElementById('passwordError');
+
+        if (document.getElementById('formTitle').textContent === 'Login') {
+            if (password.length < 1) {
+                passwordError.textContent = 'Password is required';
+                passwordError.style.display = 'block';
+                return false;
+            }
+            passwordError.style.display = 'none';
+            return true;
+        }
 
         document.getElementById('upperCaseCondition').style.color = hasUpperCase ? 'green' : 'red';
         document.getElementById('upperCaseCondition').textContent = hasUpperCase
@@ -217,6 +247,10 @@
         const email = document.getElementById('email').value;
 
         if (document.getElementById('formTitle').textContent === 'Login') {
+            if (!validateEmail(username) || !validatePassword(password)) {
+                return;
+            }
+
             try {
                 const { data, error } = await supabase.auth.signInWithPassword({
                     email: username,
@@ -236,7 +270,9 @@
                 document.getElementById('welcomeCard').style.display = 'block';
 
             } catch (error) {
-                alert('Error logging in: ' + error.message);
+                const passwordError = document.getElementById('passwordError');
+                passwordError.textContent = 'Invalid email or password';
+                passwordError.style.display = 'block';
             }
         } else {
             if (!validatePassword(password)) {
@@ -288,6 +324,10 @@
         }
     });
 
+    document.getElementById('username').addEventListener('input', function() {
+        validateEmail(this.value);
+    });
+
     document.getElementById('toggleForm').addEventListener('click', function (e) {
         e.preventDefault();
         const formTitle = document.getElementById('formTitle');
@@ -297,6 +337,11 @@
         const emailGroup = document.getElementById('emailGroup');
         const confirmPasswordGroup = document.getElementById('confirmPasswordGroup');
         const passwordConditions = document.getElementById('passwordConditions');
+        const emailError = document.getElementById('emailError');
+        const passwordError = document.getElementById('passwordError');
+
+        emailError.style.display = 'none';
+        passwordError.style.display = 'none';
 
         if (formTitle.textContent === 'Login') {
             formTitle.textContent = 'Register';
